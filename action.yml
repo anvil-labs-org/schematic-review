@@ -1,0 +1,54 @@
+name: Anvil Schematic Review
+description: >-
+  Review a schematic with Anvil and gate the job on the result. With auto
+  enabled (the default), Anvil proceeds without waiting for in-app
+  confirmation of part normalization and BOM mapping; the review still stops
+  if a component is missing a datasheet and has not been skipped.
+branding:
+  icon: check-circle
+  color: purple
+
+inputs:
+  api-key:
+    description: Anvil organization API key (create one in Settings → API Keys).
+    required: true
+  schematic-path:
+    description: Repository-relative path of the board's top-level schematic.
+    required: true
+  auto:
+    description: >-
+      Proceed without waiting for in-app confirmations of part normalization
+      and BOM mapping. Components with missing datasheets that have not been
+      skipped still stop the review. Set "false" to confirm every revision in
+      Anvil by hand. The auto mode is still in development.
+    required: false
+    default: "true"
+  strict:
+    description: >-
+      Fail the check when the review finds critical or major issues. Off by
+      default: the check passes on completion and the verdict lands in the
+      job summary.
+    required: false
+    default: "false"
+  api-url:
+    description: Anvil API base URL.
+    required: false
+    default: https://api.anvil.design
+
+runs:
+  using: composite
+  steps:
+    - name: Run the Anvil schematic review
+      shell: bash
+      env:
+        ANVIL_API: ${{ inputs.api-url }}
+        ANVIL_API_KEY: ${{ inputs.api-key }}
+        SCHEMATIC_PATH: ${{ inputs.schematic-path }}
+        AUTO: ${{ inputs.auto }}
+        STRICT: ${{ inputs.strict }}
+        REPOSITORY: ${{ github.repository }}
+        COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        PR_NUMBER: ${{ github.event.number }}
+        GITHUB_TOKEN: ${{ github.token }}
+        WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: bash "$GITHUB_ACTION_PATH/review.sh"
