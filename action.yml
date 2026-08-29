@@ -30,6 +30,14 @@ inputs:
       job summary.
     required: false
     default: "false"
+  comment:
+    description: >-
+      Post the verdict as a comment on the pull request, one per schematic,
+      rewritten in place on each run. The job needs
+      "permissions: pull-requests: write". Set "false" to report only in the
+      job summary.
+    required: false
+    default: "true"
   api-url:
     description: Anvil API base URL.
     required: false
@@ -46,9 +54,11 @@ runs:
         SCHEMATIC_PATH: ${{ inputs.schematic-path }}
         AUTO: ${{ inputs.auto }}
         STRICT: ${{ inputs.strict }}
+        COMMENT: ${{ inputs.comment }}
         REPOSITORY: ${{ github.repository }}
         COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         PR_NUMBER: ${{ github.event.number }}
         GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_API_URL: ${{ github.api_url }}
         WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       run: bash "$GITHUB_ACTION_PATH/review.sh"
