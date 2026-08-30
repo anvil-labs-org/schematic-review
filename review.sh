@@ -88,7 +88,7 @@ body=$(jq -n \
   --argjson auto "$auto" --argjson pr_number "${PR_NUMBER:-null}" \
   '{$repository, $commit_sha, $schematic_path, $github_token,
     $workflow_run_url, $auto, $pr_number}')
-review=$(curl -s --max-time 60 -H "Authorization: Bearer $ANVIL_API_KEY" \
+review=$(curl -s --max-time 300 -H "Authorization: Bearer $ANVIL_API_KEY" \
   -X POST "$ANVIL_API/reviews" -H "Content-Type: application/json" -d "$body" \
   -w '\n%{http_code}' || true)
 code=${review##*$'\n'}
